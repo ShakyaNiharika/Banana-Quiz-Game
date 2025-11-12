@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Banana Math Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Replace Firebase SDK with compat version -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJxLZk5WaWI_kGs6iOBRZ2y8Ht5GAfXUA",
+            authDomain: "banana-quiz-game-c05a4.firebaseapp.com",
+            projectId: "banana-quiz-game-c05a4",
+            storageBucket: "banana-quiz-game-c05a4.firebasestorage.app",
+            messagingSenderId: "903559757069",
+            appId: "1:903559757069:web:e089ae460d1349704fc444",
+            measurementId: "G-KW9WL2NBK5"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <style>
+        .hidden {
+            display: none;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div id="app" class="w-full max-w-md">
+        <!-- Signup Component -->
+        <div id="signup-component" class="bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 hover:shadow-3xl">
+            <!-- Decorative Header -->
+            <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 p-6 text-center">
+                <div class="flex justify-center items-center space-x-3 mb-2">
+                    <i class="fas fa-banana text-4xl text-white"></i>
+                    <h1 class="text-3xl font-bold text-white">Join Banana Math</h1>
+                </div>
+                <p class="text-yellow-100 font-medium">Start your math adventure today!</p>
+            </div>
+            
+            <div class="p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Create Account 🚀</h2>
+                    <p class="text-gray-600">Join our community of math enthusiasts</p>
+                </div>
+                
+                <form class="space-y-6">
+                    <!-- Email Field -->
+                    <div class="space-y-2">
+                        <label for="signup-email" class="block text-sm font-medium text-gray-700">
+                            <i class="fas fa-envelope mr-2"></i>Email Address
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="email" 
+                                id="signup-email" 
+                                placeholder="Enter your email" 
+                                class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-200"
+                            >
+                            <i class="fas fa-envelope absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="space-y-2">
+                        <label for="signup-password" class="block text-sm font-medium text-gray-700">
+                            <i class="fas fa-lock mr-2"></i>Password
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="signup-password" 
+                                placeholder="Create a password" 
+                                class="w-full px-4 py-3 pl-11 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-200"
+                            >
+                            <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <button type="button" id="toggle-password" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Password Strength Meter -->
+                        <div class="mt-2">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Password strength</span>
+                                <span id="password-strength-text">Weak</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="password-strength-bar" class="password-strength bg-red-500 h-2 rounded-full w-1/4 progress-bar"></div>
+                            </div>
+                        </div>
+                        
+                        <small class="text-xs text-gray-500 flex items-center mt-1">
+                            <i class="fas fa-info-circle mr-1"></i> Minimum 6 characters
+                        </small>
+                    </div>
+                    
+                    <!-- Terms and Conditions -->
+                    <div class="flex items-start space-x-2">
+                        <input type="checkbox" id="terms" class="mt-1 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500">
+                        <label for="terms" class="text-sm text-gray-600">
+                            I agree to the 
+                            <a href="#" class="text-yellow-600 hover:text-yellow-700 font-medium">Terms of Service</a> 
+                            and 
+                            <a href="#" class="text-yellow-600 hover:text-yellow-700 font-medium">Privacy Policy</a>
+                        </label>
+                    </div>
+                    
+                    <!-- Sign Up Button -->
+                    <button 
+                        id="signup-btn" 
+                        type="button"
+                        class="w-full btn-gradient text-white py-3 px-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-2"
+                    >
+                        <span class="btn-text">Create Account</span>
+                        <i class="fas fa-user-plus ml-2"></i>
+                    </button>
+                    
+                    <!-- Alternative Options -->
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">Already have an account?</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Login & Guest Links -->
+                    <div class="space-y-4 text-center">
+                        <a href="login.html" class="block w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-200 border border-gray-300">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login to Your Account
+                        </a>
+                        
+                        <a href="game.html" class="block w-full border border-yellow-500 text-yellow-600 py-3 px-4 rounded-lg font-medium hover:bg-yellow-50 transition-colors duration-200">
+                            <i class="fas fa-user-clock mr-2"></i>Continue as Guest
+                        </a>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Footer -->
+            <div class="bg-gray-50 px-8 py-4 border-t border-gray-200">
+                <p class="text-center text-xs text-gray-500">
+                    <i class="fas fa-graduation-cap mr-1"></i>
+                    For educational purpose - CIS046 Software For Enterprise
+                </p>
+            </div>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 text-center transform scale-95 hover:scale-100 transition-transform duration-300">
+                <div class="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Creating your account...</h3>
+                <p class="text-gray-600">Getting everything ready for you! 🍌</p>
+            </div>
+        </div>
+
+        <!-- Success Toast -->
+        <div id="success-toast" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-check-circle"></i>
+                <span>Account created successfully! Redirecting...</span>
+            </div>
+        </div>
+
+        <!-- Error Toast -->
+        <div id="error-toast" class="hidden fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="error-message">Signup failed!</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const signupBtn = document.getElementById('signup-btn');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const successToast = document.getElementById('success-toast');
+            const errorToast = document.getElementById('error-toast');
+            const errorMessage = document.getElementById('error-message');
+            const passwordInput = document.getElementById('signup-password');
+            const togglePasswordBtn = document.getElementById('toggle-password');
+            const passwordStrengthBar = document.getElementById('password-strength-bar');
+            const passwordStrengthText = document.getElementById('password-strength-text');
+            const termsCheckbox = document.getElementById('terms');
+
+            let isPasswordVisible = false;
+
+            // Toggle password visibility
+            togglePasswordBtn.addEventListener('click', function() {
+                isPasswordVisible = !isPasswordVisible;
+                passwordInput.type = isPasswordVisible ? 'text' : 'password';
+                togglePasswordBtn.innerHTML = isPasswordVisible ? 
+                    '<i class="fas fa-eye-slash"></i>' : 
+                    '<i class="fas fa-eye"></i>';
+            });
+
+            // Password strength checker
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                let text = 'Weak';
+                let color = 'bg-red-500';
+                let width = 'w-1/4';
+
+                if (password.length >= 6) strength++;
+                if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+                if (password.match(/\d/)) strength++;
+                if (password.match(/[^a-zA-Z\d]/)) strength++;
+
+                switch(strength) {
+                    case 1:
+                        text = 'Weak';
+                        color = 'bg-red-500';
+                        width = 'w-1/4';
+                        break;
+                    case 2:
+                        text = 'Fair';
+                        color = 'bg-orange-500';
+                        width = 'w-1/2';
+                        break;
+                    case 3:
+                        text = 'Good';
+                        color = 'bg-yellow-500';
+                        width = 'w-3/4';
+                        break;
+                    case 4:
+                        text = 'Strong';
+                        color = 'bg-green-500';
+                        width = 'w-full';
+                        break;
+                    default:
+                        text = 'Weak';
+                        color = 'bg-red-500';
+                        width = 'w-1/4';
+                }
+
+                passwordStrengthBar.className = `password-strength ${color} h-2 rounded-full ${width} progress-bar`;
+                passwordStrengthText.textContent = text;
+            });
+
+            // Form submission handler
+            signupBtn.addEventListener('click', async function() {
+                const email = document.getElementById('signup-email').value;
+                const password = passwordInput.value;
+
+                // Validation
+                let isValid = true;
+
+                if (!email || !email.includes('@')) {
+                    document.getElementById('signup-email').classList.add('shake');
+                    setTimeout(() => document.getElementById('signup-email').classList.remove('shake'), 500);
+                    isValid = false;
+                }
+
+                if (password.length < 6) {
+                    passwordInput.classList.add('shake');
+                    setTimeout(() => passwordInput.classList.remove('shake'), 500);
+                    isValid = false;
+                }
+
+                if (!termsCheckbox.checked) {
+                    termsCheckbox.classList.add('shake');
+                    setTimeout(() => termsCheckbox.classList.remove('shake'), 500);
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                // Show loading
+                loadingOverlay.classList.remove('hidden');
+                signupBtn.disabled = true;
+
+                try {
+                    // Firebase authentication - create user using compat version
+                    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    // Show success
+                    loadingOverlay.classList.add('hidden');
+                    successToast.classList.remove('hidden');
+                    
+                    // Redirect after success
+                    setTimeout(() => {
+                        window.location.href = 'game.html';
+                    }, 1500);
+                    
+                } catch (error) {
+                    // Handle errors
+                    loadingOverlay.classList.add('hidden');
+                    signupBtn.disabled = false;
+                    
+                    let message = 'Signup failed!';
+                    switch (error.code) {
+                        case 'auth/email-already-in-use':
+                            message = 'Email already in use!';
+                            break;
+                        case 'auth/invalid-email':
+                            message = 'Invalid email address!';
+                            break;
+                        case 'auth/operation-not-allowed':
+                            message = 'Operation not allowed!';
+                            break;
+                        case 'auth/weak-password':
+                            message = 'Password is too weak!';
+                            break;
+                        default:
+                            message = error.message;
+                    }
+                    
+                    errorMessage.textContent = message;
+                    errorToast.classList.remove('hidden');
+                    
+                    // Hide error toast after 5 seconds
+                    setTimeout(() => {
+                        errorToast.classList.add('hidden');
+                    }, 5000);
+                }
+            });
+
+            // Input focus effects
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('ring-2', 'ring-yellow-500', 'ring-opacity-20');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('ring-2', 'ring-yellow-500', 'ring-opacity-20');
+                });
+            });
+
+            // Enter key support
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    signupBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

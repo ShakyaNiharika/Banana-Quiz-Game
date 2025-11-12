@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banana Math Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Firebase compat version (non-module) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJxLZk5WaWI_kGs6iOBRZ2y8Ht5GAfXUA",
+            authDomain: "banana-quiz-game-c05a4.firebaseapp.com",
+            projectId: "banana-quiz-game-c05a4",
+            storageBucket: "banana-quiz-game-c05a4.firebasestorage.app",
+            messagingSenderId: "903559757069",
+            appId: "1:903559757069:web:e089ae460d1349704fc444",
+            measurementId: "G-KW9WL2NBK5"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <style>
+        .hidden { display: none; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .correct { color: green; }
+        .incorrect { color: red; }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div id="app">
+        <!-- Navigation Bar -->
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-banana text-2xl text-yellow-500"></i>
+                        <h1 class="text-xl font-bold text-gray-800">Banana Math Game</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span id="user-email" class="text-gray-600 text-sm"></span>
+                        <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors hidden">
+                            Logout
+                        </button>
+                        <button id="login-redirect-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors hidden">
+                            Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Game Container -->
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
+                <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">Banana Math Puzzle</h1>
+                <p class="text-center text-gray-600 mb-8">Solve the math puzzle and enter your answer below!</p>
+                
+                <div id="game-container" class="text-center">
+                    <div class="mb-6">
+                        <img id="puzzle-image" src="" alt="Math Puzzle" class="mx-auto max-w-full h-auto rounded-lg shadow-md">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <input 
+                            type="text" 
+                            id="answer-input" 
+                            placeholder="Enter your answer..." 
+                            class="w-full max-w-xs mx-auto px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-center text-lg"
+                        >
+                    </div>
+                    
+                    <button 
+                        id="submit-btn" 
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 mb-6"
+                    >
+                        Submit Answer
+                    </button>
+                    
+                    <div id="feedback" class="text-lg font-semibold mb-4 min-h-8"></div>
+                    <div id="stats" class="text-gray-700 font-medium">Score: 0 | Attempts: 0</div>
+                </div>
+
+                <!-- Guest Message -->
+                <div id="guest-message" class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hidden">
+                    <p class="text-yellow-800 text-sm">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        You're playing as a guest. <a href="login.html" class="font-semibold underline">Login</a> to save your progress!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Your original BananaGame class - unchanged!
+        class BananaGame {
+            constructor() {
+                this.score = 0;
+                this.attempts = 0;
+                this.currentQuestion = null;
+                this.initializeGame();
+            }
+
+            async initializeGame() {
+                await this.loadQuestion();
+                this.setupEventListeners();
+            }
+
+            async loadQuestion() {
+                try {
+                    console.log("Fetching question from API...");
+
+                    // Add cache busting to avoid cached responses
+                    const timestamp = new Date().getTime();
+                    const response = await fetch(
+                        `https://marcconrad.com/uob/banana/api.php?t=${timestamp}`
+                    );
+
+                    console.log("📡 Response status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log("API Response:", data);
+
+                    this.currentQuestion = data;
+                    document.getElementById("puzzle-image").src = data.question;
+                    this.showFeedback("Question loaded! Enter your answer.", null);
+                } catch (error) {
+                    console.error(" Error loading question:", error);
+                    this.showFeedback(`Error: ${error.message}`, false);
+
+                    // Show fallback message
+                    document.getElementById("puzzle-image").src =
+                        "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIHF1ZXN0aW9uIGxvYWRlZDwvdGV4dD48L3N2Zz4=";
+                }
+            }
+
+            checkAnswer(userAnswer) {
+                if (!this.currentQuestion) {
+                    this.showFeedback("No question loaded yet!", false);
+                    return false;
+                }
+
+                this.attempts++;
+                const isCorrect = userAnswer === this.currentQuestion.solution.toString();
+
+                if (isCorrect) {
+                    this.score++;
+                    this.showFeedback("Correct! 🎉 Loading next question...", true);
+                    // Load next question after delay
+                    setTimeout(() => {
+                        this.loadQuestion();
+                        document.getElementById("answer-input").value = "";
+                    }, 1500);
+                } else {
+                    this.showFeedback("Try again! ❌", false);
+                }
+
+                this.updateStats();
+                return isCorrect;
+            }
+
+            showFeedback(message, isCorrect) {
+                const feedback = document.getElementById("feedback");
+                feedback.textContent = message;
+
+                if (isCorrect === true) {
+                    feedback.className = "correct";
+                } else if (isCorrect === false) {
+                    feedback.className = "incorrect";
+                } else {
+                    feedback.className = "";
+                }
+            }
+
+            updateStats() {
+                document.getElementById(
+                    "stats"
+                ).textContent = `Score: ${this.score} | Attempts: ${this.attempts}`;
+            }
+
+            setupEventListeners() {
+                document.getElementById("submit-btn").addEventListener("click", () => {
+                    const answer = document.getElementById("answer-input").value;
+                    this.checkAnswer(answer);
+                });
+
+                document.getElementById("answer-input").addEventListener("keypress", (e) => {
+                    if (e.key === "Enter") {
+                        const answer = document.getElementById("answer-input").value;
+                        this.checkAnswer(answer);
+                    }
+                });
+            }
+        }
+
+        // Authentication logic
+        firebase.auth().onAuthStateChanged((user) => {
+            const logoutBtn = document.getElementById('logout-btn');
+            const loginRedirectBtn = document.getElementById('login-redirect-btn');
+            const userEmailSpan = document.getElementById('user-email');
+            const guestMessage = document.getElementById('guest-message');
+
+            if (user) {
+                // User is signed in
+                userEmailSpan.textContent = user.email;
+                logoutBtn.classList.remove('hidden');
+                loginRedirectBtn.classList.add('hidden');
+                guestMessage.classList.add('hidden');
+            } else {
+                // User is signed out or playing as guest
+                userEmailSpan.textContent = 'Guest Player';
+                logoutBtn.classList.add('hidden');
+                loginRedirectBtn.classList.remove('hidden');
+                guestMessage.classList.remove('hidden');
+            }
+        });
+
+        // Logout functionality
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            try {
+                await firebase.auth().signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        // Login redirect
+        document.getElementById('login-redirect-btn').addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+
+        // Initialize game when page loads - JUST LIKE BEFORE!
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("🚀 Initializing Banana Game...");
+            window.game = new BananaGame();
+        });
+    </script>
+    
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</body>
+</html>

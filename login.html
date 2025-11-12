@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Banana Math Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Replace Firebase SDK with compat version -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJxLZk5WaWI_kGs6iOBRZ2y8Ht5GAfXUA",
+            authDomain: "banana-quiz-game-c05a4.firebaseapp.com",
+            projectId: "banana-quiz-game-c05a4",
+            storageBucket: "banana-quiz-game-c05a4.firebasestorage.app",
+            messagingSenderId: "903559757069",
+            appId: "1:903559757069:web:e089ae460d1349704fc444",
+            measurementId: "G-KW9WL2NBK5"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <style>
+        .hidden {
+            display: none;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div id="app" class="w-full max-w-md">
+        <!-- Login Component -->
+        <div id="login-component" class="bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 hover:shadow-3xl">
+            <!-- Decorative Header -->
+            <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 p-6 text-center">
+                <div class="flex justify-center items-center space-x-3 mb-2">
+                    <i class="fas fa-banana text-4xl text-white"></i>
+                    <h1 class="text-3xl font-bold text-white">Banana Math</h1>
+                </div>
+                <p class="text-yellow-100 font-medium">Test your math skills with fun puzzles!</p>
+            </div>
+            
+            <div class="p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back! 🎉</h2>
+                    <p class="text-gray-600">Sign in to continue your math adventure</p>
+                </div>
+                
+                <form class="space-y-6">
+                    <!-- Email Field -->
+                    <div class="space-y-2">
+                        <label for="login-email" class="block text-sm font-medium text-gray-700">
+                            <i class="fas fa-envelope mr-2"></i>Email Address
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="email" 
+                                id="login-email" 
+                                placeholder="Enter your email" 
+                                class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-200"
+                            >
+                            <i class="fas fa-envelope absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="space-y-2">
+                        <label for="login-password" class="block text-sm font-medium text-gray-700">
+                            <i class="fas fa-lock mr-2"></i>Password
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="login-password" 
+                                placeholder="Enter your password" 
+                                class="w-full px-4 py-3 pl-11 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-200"
+                            >
+                            <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <button type="button" id="toggle-password" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="remember-me" class="rounded border-gray-300 text-yellow-500 focus:ring-yellow-500">
+                            <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                        </label>
+                        <a href="#" class="text-sm text-yellow-600 hover:text-yellow-700 font-medium transition-colors">
+                            Forgot password?
+                        </a>
+                    </div>
+                    
+                    <!-- Login Button -->
+                    <button 
+                        id="login-btn" 
+                        type="button"
+                        class="w-full btn-gradient text-white py-3 px-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-2"
+                    >
+                        <span class="btn-text">Login to Play</span>
+                        <i class="fas fa-play ml-2"></i>
+                    </button>
+                    
+                    <!-- Alternative Options -->
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">Or continue with</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Guest & Signup Links -->
+                    <div class="space-y-4 text-center">
+                        <a href="game.html" class="block w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-200 border border-gray-300">
+                            <i class="fas fa-user-clock mr-2"></i>Continue as Guest
+                        </a>
+                        
+                        <div class="text-sm text-gray-600">
+                            Don't have an account? 
+                            <a href="signup.html" class="font-semibold text-yellow-600 hover:text-yellow-700 transition-colors ml-1">
+                                Create one now!
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Footer -->
+            <div class="bg-gray-50 px-8 py-4 border-t border-gray-200">
+                <p class="text-center text-xs text-gray-500">
+                    <i class="fas fa-graduation-cap mr-1"></i>
+                    For educational purpose - CIS046 Software For Enterprise
+                </p>
+            </div>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 text-center transform scale-95 hover:scale-100 transition-transform duration-300">
+                <div class="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Logging you in...</h3>
+                <p class="text-gray-600">Getting your math puzzles ready! 🍌</p>
+            </div>
+        </div>
+
+        <!-- Success Toast -->
+        <div id="success-toast" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-check-circle"></i>
+                <span>Login successful! Redirecting...</span>
+            </div>
+        </div>
+
+        <!-- Error Toast -->
+        <div id="error-toast" class="hidden fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="error-message">Login failed!</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginBtn = document.getElementById('login-btn');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const successToast = document.getElementById('success-toast');
+            const errorToast = document.getElementById('error-toast');
+            const errorMessage = document.getElementById('error-message');
+            const togglePasswordBtn = document.getElementById('toggle-password');
+            const passwordInput = document.getElementById('login-password');
+
+            let isPasswordVisible = false;
+
+            // Toggle password visibility
+            togglePasswordBtn.addEventListener('click', function() {
+                isPasswordVisible = !isPasswordVisible;
+                passwordInput.type = isPasswordVisible ? 'text' : 'password';
+                togglePasswordBtn.innerHTML = isPasswordVisible ? 
+                    '<i class="fas fa-eye-slash"></i>' : 
+                    '<i class="fas fa-eye"></i>';
+            });
+
+            // Form submission handler
+            loginBtn.addEventListener('click', async function() {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+
+                // Simple validation
+                if (!email || !password) {
+                    // Add shake animation to empty fields
+                    if (!email) {
+                        document.getElementById('login-email').classList.add('shake');
+                        setTimeout(() => document.getElementById('login-email').classList.remove('shake'), 500);
+                    }
+                    if (!password) {
+                        document.getElementById('login-password').classList.add('shake');
+                        setTimeout(() => document.getElementById('login-password').classList.remove('shake'), 500);
+                    }
+                    return;
+                }
+
+                // Email format validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    document.getElementById('login-email').classList.add('shake');
+                    setTimeout(() => document.getElementById('login-email').classList.remove('shake'), 500);
+                    return;
+                }
+
+                // Show loading
+                loadingOverlay.classList.remove('hidden');
+                loginBtn.disabled = true;
+
+                try {
+                    // Firebase authentication - using firebase.auth() instead of imported functions
+                    const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    // Store user data if remember me is checked
+                    const rememberMe = document.getElementById('remember-me').checked;
+                    if (rememberMe) {
+                        localStorage.setItem('userEmail', email);
+                    }
+
+                    // Show success
+                    loadingOverlay.classList.add('hidden');
+                    successToast.classList.remove('hidden');
+                    
+                    // Redirect after success
+                    setTimeout(() => {
+                        window.location.href = 'game.html';
+                    }, 1500);
+                    
+                } catch (error) {
+                    // Handle errors
+                    loadingOverlay.classList.add('hidden');
+                    loginBtn.disabled = false;
+                    
+                    let message = 'Login failed!';
+                    switch (error.code) {
+                        case 'auth/invalid-email':
+                            message = 'Invalid email address!';
+                            break;
+                        case 'auth/user-disabled':
+                            message = 'This account has been disabled!';
+                            break;
+                        case 'auth/user-not-found':
+                            message = 'No account found with this email!';
+                            break;
+                        case 'auth/wrong-password':
+                            message = 'Incorrect password!';
+                            break;
+                        case 'auth/too-many-requests':
+                            message = 'Too many attempts. Try again later!';
+                            break;
+                        default:
+                            message = error.message;
+                    }
+                    
+                    errorMessage.textContent = message;
+                    errorToast.classList.remove('hidden');
+                    
+                    // Hide error toast after 5 seconds
+                    setTimeout(() => {
+                        errorToast.classList.add('hidden');
+                    }, 5000);
+                }
+            });
+
+            // Input focus effects
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('ring-2', 'ring-yellow-500', 'ring-opacity-20');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('ring-2', 'ring-yellow-500', 'ring-opacity-20');
+                });
+            });
+
+            // Enter key support
+            document.getElementById('login-password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginBtn.click();
+                }
+            });
+
+            // Check if user email is stored for remember me
+            const savedEmail = localStorage.getItem('userEmail');
+            if (savedEmail) {
+                document.getElementById('login-email').value = savedEmail;
+                document.getElementById('remember-me').checked = true;
+            }
+        });
+    </script>
+</body>
+</html>

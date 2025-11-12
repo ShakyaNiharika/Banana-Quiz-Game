@@ -1,0 +1,37 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#game-container {
+    text-align: center;
+}
+
+#puzzle-image {
+    max-width: 100%;
+    height: auto;
+    margin: 20px 0;
+}
+
+input, button {
+    padding: 10px;
+    margin: 5px;
+    font-size: 16px;
+}
+
+.correct {
+    color: green;
+    font-weight: bold;
+}
+
+.incorrect {
+    color: red;
+    font-weight: bold;
+}
+
+#stats {
+    margin-top: 20px;
+    font-weight: bold;
+}
