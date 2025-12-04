@@ -279,7 +279,7 @@
                 signupBtn.disabled = true;
 
                 try {
-                    // Firebase authentication - create user using compat version
+                    // Firebase authentication - create user using compat version (Implementing VIRTUAL IDENTITY)
                     const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
                     const user = userCredential.user;
                     
